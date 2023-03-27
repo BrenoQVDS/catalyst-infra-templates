@@ -18,7 +18,9 @@ jobs:
         ref: ${{ env.APP_ENGINE_BRANCH }}
     - name: Scan vulnerabilities with snyk
       run: |
+        pwd
         cd scan-prj
+        pwd
         bash build-pom.sh
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
@@ -64,6 +66,7 @@ jobs:
           ((LINE_NUM++))
         done < snyk-results.txt
         cat report.csv
+        cat snyk-results.txt
     - name: Upload Cypress results
       uses: actions/upload-artifact@v3
       with:
