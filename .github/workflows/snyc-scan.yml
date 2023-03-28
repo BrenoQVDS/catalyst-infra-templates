@@ -11,7 +11,7 @@ jobs:
   cron:
     strategy:
       matrix:
-        branch: [develop]
+        branch: [develop,release/7.1]
         repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
       fail-fast: false #change to true later
       max-parallel: 10
