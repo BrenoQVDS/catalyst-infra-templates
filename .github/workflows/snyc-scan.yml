@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         branch: [develop]
-        organization: [entando, entando-k8s]
         repo: [app-engine, entando-spring-boot-parent, entando-quarkus-parent]
+        organization: [entando, entando-k8s]
         exclude: 
           - organization: entando
             repo: entando-quarkus-parent
@@ -39,7 +39,7 @@ jobs:
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
-        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > report.csv
+        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > report-$RANDOM.csv
         LINE_NUM=1
         while read LINE
         do
@@ -84,5 +84,5 @@ jobs:
     - name: Upload Cypress results
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.branch }}-${{ matrix.repo }}-snyk-report
-        path: scan-prj/report.csv
+        name: snyk-report
+        path: scan-prj/*.csv
