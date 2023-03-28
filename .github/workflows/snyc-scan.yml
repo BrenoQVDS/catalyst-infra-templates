@@ -11,8 +11,8 @@ jobs:
   cron:
     strategy:
       matrix:
-        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
         branch: [develop]
+        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
       fail-fast: false #change to true later
       max-parallel: 10
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ matrix.repo }}
-        ref: ${{ matrix.develop }}
+        ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
         pwd
@@ -76,5 +76,5 @@ jobs:
     - name: Upload Cypress results
       uses: actions/upload-artifact@v3
       with:
-        name: snyk-report
+        name: ${{ matrix.branch }}-${{ matrix.repo }}-snyk-report
         path: scan-prj/report.csv
