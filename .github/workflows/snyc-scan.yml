@@ -12,15 +12,7 @@ jobs:
     strategy:
       matrix:
         branch: [develop]
-        repo: [app-engine, entando-spring-boot-parent, entando-quarkus-parent]
-        organization: [entando, entando-k8s]
-        exclude: 
-          - organization: entando
-            repo: entando-quarkus-parent
-          - organization: entando-k8s
-            repo: app-engine
-          - organization: entando-k8s
-            repo: entando-spring-boot-parent
+        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
       fail-fast: false #change to true later
       max-parallel: 10
     runs-on: ubuntu-latest
@@ -28,7 +20,7 @@ jobs:
     - name: Checkout project
       uses: actions/checkout@v3
       with:
-        repository: ${{ matrix.organization }}/${{ matrix.repo }}
+        repository: ${{ matrix.repo }}
         ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
@@ -39,7 +31,10 @@ jobs:
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
-        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > report-$RANDOM.csv
+        REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
+        BRANCH=${${{ matrix.repo }}//\//_}
+        REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
+        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
         LINE_NUM=1
         while read LINE
         do
@@ -64,22 +59,22 @@ jobs:
             VULNERABLE_LIB_VERSION=$(echo "${LINE}" | awk -F '@' '{print $2}' | awk '{print $1}')
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
-              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> report.csv
+              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
             VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F 'This issue was fixed in versions: ' '{print $2}')
             FIX_TYPE="Explicity"
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> report.csv
+            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
             VULNERABLE_LIB_VERSION_FIX=
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> report.csv
+            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
           fi
           ((LINE_NUM++))
         done < snyk-results.txt
-        cat report.csv
+        cat REPORT_FILE_NAME
         cat snyk-results.txt
     - name: Upload Cypress results
       uses: actions/upload-artifact@v3
