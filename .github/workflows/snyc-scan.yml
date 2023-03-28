@@ -9,13 +9,19 @@ env:
 
 jobs:
   cron:
+    strategy:
+      matrix:
+        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
+        branch: [develop]
+      fail-fast: false #change to true later
+      max-paralel: 10
     runs-on: ubuntu-latest
     steps:
     - name: Checkout project
       uses: actions/checkout@v3
       with:
-        repository: ${{ env.APP_ENGINE_REPO }}
-        ref: ${{ env.APP_ENGINE_BRANCH }}
+        repository: ${{ matrix.repo }}
+        ref: ${{ matrix.develop }}
     - name: Scan vulnerabilities with snyk
       run: |
         pwd
