@@ -31,8 +31,8 @@ jobs:
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
+        BRANCH=$(echo ${{ matrix.repo }} | sed -r 's;/+;_;g')
         REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
-        BRANCH=${${{ matrix.repo }}//\//_}
         REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
         LINE_NUM=1
