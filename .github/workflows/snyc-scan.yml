@@ -12,7 +12,15 @@ jobs:
     strategy:
       matrix:
         branch: [develop]
-        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
+        organization: [entando, entando-k8s]
+        repo: [app-engine, entando-spring-boot-parent, entando-quarkus-parent]
+        exclude: 
+          - organization: entando
+            repo: entando-quarkus-parent
+          - organization: entando-k8s
+            repo: app-engine
+          - organization: entando-k8s
+            repo: entando-spring-boot-parent
       fail-fast: false #change to true later
       max-parallel: 10
     runs-on: ubuntu-latest
@@ -20,7 +28,7 @@ jobs:
     - name: Checkout project
       uses: actions/checkout@v3
       with:
-        repository: ${{ matrix.repo }}
+        repository: ${{ matrix.organization }}/${{ matrix.repo }}
         ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
