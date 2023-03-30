@@ -34,6 +34,7 @@ jobs:
         BRANCH=$(echo ${{ matrix.branch }} | sed -r 's;/+;_;g')
         REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
         REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
+        echo $REPORT_FILE_NAME
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
         LINE_NUM=1
         while read LINE
@@ -59,22 +60,22 @@ jobs:
             VULNERABLE_LIB_VERSION=$(echo "${LINE}" | awk -F '@' '{print $2}' | awk '{print $1}')
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
-              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
+              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
             VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F 'This issue was fixed in versions: ' '{print $2}')
             FIX_TYPE="Explicity"
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
+            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
             VULNERABLE_LIB_VERSION_FIX=
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> REPORT_FILE_NAME
+            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
           fi
           ((LINE_NUM++))
         done < snyk-results.txt
-        cat REPORT_FILE_NAME
+        cat $REPORT_FILE_NAME
         cat snyk-results.txt
     - name: Upload Cypress results
       uses: actions/upload-artifact@v3
