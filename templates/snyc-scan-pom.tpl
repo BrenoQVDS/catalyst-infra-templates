@@ -17,7 +17,7 @@
     <!-- BASE PROJECT SETUP -->
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <groupId>org.entando.entando</groupId>
-    <artifactId>entando-quarkus-parent-pom-tester</artifactId>
+    <artifactId>entando-quarkus-parent-pom-tester2</artifactId>
     <packaging>jar</packaging>
     <version>7.2.0-SNAPSHOT</version>
     <name>Entando Quarkus Parent Pom Tester</name>
