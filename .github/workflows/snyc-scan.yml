@@ -39,12 +39,11 @@ jobs:
       continue-on-error: true
       id: set-build-pom-script
       run: |
-        cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL
-        echo "build_pom_script='$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)'" >> $GITHUB_OUTPUT
+        echo "build_pom_script=`cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL`" >> $GITHUB_OUTPUT
     - name: print output
       run: |
         echo "Output: ${{ steps.set-build-pom-script.outputs.build_pom_script }}"
-        cat ${{ steps.set-build-pom-script.outputs.build_pom_script }}
+        
 #        echo ::set-output name=build_pom_script::$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)
 #        echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
         
