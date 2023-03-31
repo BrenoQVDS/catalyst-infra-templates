@@ -69,11 +69,13 @@ jobs:
     - name: Scan vulnerabilities with snyk
       run: |
         ${{ needs.output-setup.outputs.build_pom_script }} > input.file
+        cat input.file
         while IFS= read -r line
         do
           echo "$line"
         done < input.file
         ${{ needs.output-setup.outputs.pom_template }} > input.file
+        cat input.file
         while IFS= read -r line
         do
           echo "$line"
