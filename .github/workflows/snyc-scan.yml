@@ -9,12 +9,16 @@ env:
 #  CATALYST_INFRA_TEMPLATES_REPO: entando/catalyst-infra-templates
   CATALYST_INFRA_TEMPLATES_REPO: BrenoQVDS/catalyst-infra-templates
   SNYK_SCAN_MATRIX_CONFIG_URL: global-config/snyk-scan-matrix.json
+  SNYK_SCAN_BUILD_POM_SCRIPT_URL: scripts/snyk-scan-build-pom.sh
+  SNYK_SCAN_POM_TEMPLATE_CONFIG_URL: templates/snyc-scan-pom.tpl
 
 jobs:
-  output-matrix:
+  output-setup:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      build_pom_script: ${{ steps.set-build-pom-script.outputs.build_pom_script }}
+      pom_template: ${{ steps.set-pom-template.outputs.pom_template }}
     steps:
     # Checkout the catalyst-infra-templates repository
     - name: Checkout catalyst-infra-templates
@@ -28,11 +32,24 @@ jobs:
       id: set-matrix
       run: |
         echo "matrix=$(jq -c . < $SNYK_SCAN_MATRIX_CONFIG_URL)" >> $GITHUB_OUTPUT
+        
+    # Load snyk scan matrix from config file
+    - name: Load snyk scan matrix
+      id: set-build-pom-script
+      run: |
+        echo "build_pom_script=$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
+        
+    # Load snyk scan matrix from config file
+    - name: Load snyk scan matrix
+      id: set-pom-template
+      run: |
+        echo "pom_template=$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
+        
   scan-matrix:
-    needs: output-matrix
+    needs: output-setup
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.output-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.output-setup.outputs.matrix)}}
       fail-fast: false #change to true later
       max-parallel: 10
     steps:
@@ -43,6 +60,8 @@ jobs:
         ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
+        cat ${{ needs.output-setup.outputs.build_pom_script }}
+        cat ${{ needs.output-setup.outputs.pom_template }}
         pwd
         cd scan-prj
         pwd
