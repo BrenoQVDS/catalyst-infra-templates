@@ -22,7 +22,6 @@ jobs:
       matrix: ${{fromJson(needs.output-matrix.outputs.matrix)}}
       fail-fast: false #change to true later
       max-parallel: 10
-    runs-on: ubuntu-latest
     steps:
     - name: Checkout project
       uses: actions/checkout@v3
