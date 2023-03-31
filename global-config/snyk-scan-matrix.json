@@ -4,7 +4,7 @@
     "release/7.1"
   ],
   "repo": [
-    "entando/app-engine",
+    "entand4o/app-engine",
     "entando/entando-spring-boot-parent",
     "entando-k8s/entando-quarkus-parent"
   ]
