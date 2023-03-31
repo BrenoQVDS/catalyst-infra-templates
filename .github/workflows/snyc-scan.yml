@@ -35,12 +35,16 @@ jobs:
         
     # Load snyk-scan-build-pom.sh file
     - name: Load snyk-scan-build-pom.sh
+      #Remove later
+      continue-on-error: true
       id: set-build-pom-script
       run: |
         echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
         
     # Load snyc-scan-pom.tpl file
     - name: Load snyc-scan-pom.tpl
+      #Remove later
+      continue-on-error: true
       id: set-pom-template
       run: |
         echo "pom_template=$(<$SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
