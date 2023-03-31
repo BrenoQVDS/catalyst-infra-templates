@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "test"
+echo "test2"
 
 INDEP=false
 INEXC=false
