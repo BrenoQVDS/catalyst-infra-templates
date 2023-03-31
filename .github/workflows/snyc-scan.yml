@@ -6,6 +6,9 @@ on:
 env:
   APP_ENGINE_REPO: entando/app-engine
   APP_ENGINE_BRANCH: develop
+#  CATALYST_INFRA_TEMPLATES_REPO: entando/catalyst-infra-templates
+  CATALYST_INFRA_TEMPLATES_REPO: BrenoQVDS/catalyst-infra-templates
+  SNYK_SCAN_MATRIX_CONFIG_URL: global-config/snyk-scan-matrix.json
 
 jobs:
   output-matrix:
@@ -13,8 +16,18 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - id: set-matrix
-      run: echo "matrix={\"include\":[{\"branch\":\"develop\",\"repo\":\"entando/app-engine\"},{\"branch\":\"develop\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"develop\",\"repo\":\"entando-k8s/entando-quarkus-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/app-engine\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando-k8s/entando-quarkus-parent2\"}]}" >> $GITHUB_OUTPUT
+    # Checkout the catalyst-infra-templates repository
+    - name: Checkout catalyst-infra-templates
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ env.CATALYST_INFRA_TEMPLATES_REPO }}
+        token: ${{ secrets.ENTANDO_BOT_TOKEN }}
+        
+    # Load snyk scan matrix from config file
+    - name: Load snyk scan matrix
+      id: set-matrix
+      run: |
+        echo "matrix=$(jq -c . < $SNYK_SCAN_MATRIX_CONFIG_URL)" >> $GITHUB_OUTPUT
   scan-matrix:
     needs: output-matrix
     runs-on: ubuntu-latest
