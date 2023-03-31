@@ -39,7 +39,8 @@ jobs:
       continue-on-error: true
       id: set-build-pom-script
       run: |
-        echo ::set-output name=build_pom_script::$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)
+        echo "build_pom_script=$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
+#        echo ::set-output name=build_pom_script::$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)
 #        echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
         
     # Load snyc-scan-pom.tpl file
@@ -48,7 +49,8 @@ jobs:
       continue-on-error: true
       id: set-pom-template
       run: |
-        echo ::set-output name=pom_template::$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)
+        echo "pom_template=$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
+#        echo ::set-output name=pom_template::$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)
 #        echo "pom_template=$(<$SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
         
   scan-matrix:
