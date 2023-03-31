@@ -14,7 +14,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "::set-output name=matrix::{\"include\":[{\"branch\":\"develop\",\"repo\":\"entando/app-engine\"},{\"branch\":\"develop\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"develop\",\"repo\":\"entando-k8s/entando-quarkus-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/app-engine\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando-k8s/entando-quarkus-parent\"}]}"
+      run: echo "matrix={\"include\":[{\"branch\":\"develop\",\"repo\":\"entando/app-engine\"},{\"branch\":\"develop\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"develop\",\"repo\":\"entando-k8s/entando-quarkus-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/app-engine\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando-k8s/entando-quarkus-parent2\"}]}" >> $GITHUB_OUTPUT
   scan-matrix:
     needs: output-matrix
     runs-on: ubuntu-latest
