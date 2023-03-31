@@ -8,11 +8,18 @@ env:
   APP_ENGINE_BRANCH: develop
 
 jobs:
-  cron:
+  output-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - id: set-matrix
+      run: echo "::set-output name=matrix::{\"include\":[{\"branch\":\"develop\",\"repo\":\"entando/app-engine\"},{\"branch\":\"develop\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"develop\",\"repo\":\"entando-k8s/entando-quarkus-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/app-engine\"},{\"branch\":\"release/7.1\",\"repo\":\"entando/entando-spring-boot-parent\"},{\"branch\":\"release/7.1\",\"repo\":\"entando-k8s/entando-quarkus-parent\"}]}"
+  scan-matrix:
+    needs: output-matrix
+    runs-on: ubuntu-latest
     strategy:
-      matrix:
-        branch: [develop,release/7.1]
-        repo: [entando/app-engine, entando/entando-spring-boot-parent, entando-k8s/entando-quarkus-parent]
+      matrix: ${{fromJson(needs.output-matrix.outputs.matrix)}}
       fail-fast: false #change to true later
       max-parallel: 10
     runs-on: ubuntu-latest
