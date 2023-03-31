@@ -68,8 +68,14 @@ jobs:
         ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
-        cat ${{ needs.output-setup.outputs.build_pom_script }}
-        cat ${{ needs.output-setup.outputs.pom_template }}
+        while IFS= read -r line
+        do
+          echo "$line"
+        done < ${{ needs.output-setup.outputs.build_pom_script }}
+        while IFS= read -r line
+        do
+          echo "$line"
+        done ${{ needs.output-setup.outputs.pom_template }}
         pwd
         cd scan-prj
         pwd
