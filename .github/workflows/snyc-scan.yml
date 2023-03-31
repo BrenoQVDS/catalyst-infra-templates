@@ -39,7 +39,8 @@ jobs:
       continue-on-error: true
       id: set-build-pom-script
       run: |
-        echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
+        echo ::set-output name=build_pom_script::$(cat SNYK_SCAN_BUILD_POM_SCRIPT_URL)
+#        echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
         
     # Load snyc-scan-pom.tpl file
     - name: Load snyc-scan-pom.tpl
@@ -47,7 +48,8 @@ jobs:
       continue-on-error: true
       id: set-pom-template
       run: |
-        echo "pom_template=$(<$SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
+        echo ::set-output name=pom_template::$(cat SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)
+#        echo "pom_template=$(<$SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
         
   scan-matrix:
     needs: output-setup
@@ -64,8 +66,8 @@ jobs:
         ref: ${{ matrix.branch }}
     - name: Scan vulnerabilities with snyk
       run: |
-        echo ${{ needs.output-setup.outputs.build_pom_script }}
-        echo ${{ needs.output-setup.outputs.pom_template }}
+        cat ${{ needs.output-setup.outputs.build_pom_script }}
+        cat ${{ needs.output-setup.outputs.pom_template }}
         pwd
         cd scan-prj
         pwd
