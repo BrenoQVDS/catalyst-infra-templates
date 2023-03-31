@@ -1,28 +1,11 @@
 {
-  "include":[
-    {
-      "branch":"develop",
-      "repo":"entando/app-engine"
-    },
-    {
-      "branch":"develop",
-      "repo":"entando/entando-spring-boot-parent"
-    },
-    {
-      "branch":"develop",
-      "repo":"entando-k8s/entando-quarkus-parent"
-    },
-    {
-      "branch":"release/7.1",
-      "repo":"entando/app-engine"
-    },
-    {
-      "branch":"release/7.1",
-      "repo":"entando/entando-spring-boot-parent"
-    },
-    {
-      "branch":"release/7.1",
-      "repo":"entando-k8s/e3ntando-quarkus-parent"
-    }
+  "branch": [
+    "develop",
+    "release/7.1"
+  ],
+  "repo": [
+    "entando/app-engine",
+    "entando/entando-spring-boot-parent",
+    "entando-k8s/entando-quarkus-parent"
   ]
 }
