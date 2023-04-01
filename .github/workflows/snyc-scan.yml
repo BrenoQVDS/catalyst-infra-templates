@@ -37,13 +37,13 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: snyk-scan-build-pom.sh
-        path: $SNYK_SCAN_BUILD_POM_SCRIPT_URL
+        path: ${{ env.SNYK_SCAN_BUILD_POM_SCRIPT_URL }}
         
     - name: Upload snyc-scan-pom.tpl
       uses: actions/upload-artifact@v3
       with:
         name: snyc-scan-pom.tpl
-        path: $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL
+        path: ${{ env.SNYK_SCAN_POM_TEMPLATE_CONFIG_URL }}
  
     # Load snyk-scan-build-pom.sh file
 #    - name: Load snyk-scan-build-pom.sh
