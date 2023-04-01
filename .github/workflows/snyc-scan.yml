@@ -32,30 +32,42 @@ jobs:
       id: set-matrix
       run: |
         echo "matrix=$(jq -c . < $SNYK_SCAN_MATRIX_CONFIG_URL)" >> $GITHUB_OUTPUT
+ 
+    - name: Upload snyk-scan-build-pom.sh
+      uses: actions/upload-artifact@v3
+      with:
+        name: snyk-scan-build-pom.sh
+        path: $SNYK_SCAN_BUILD_POM_SCRIPT_URL
         
+    - name: Upload snyc-scan-pom.tpl
+      uses: actions/upload-artifact@v3
+      with:
+        name: snyc-scan-pom.tpl
+        path: $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL
+ 
     # Load snyk-scan-build-pom.sh file
-    - name: Load snyk-scan-build-pom.sh
-      #Remove later
-      continue-on-error: true
-      id: set-build-pom-script
-      run: |
-        snyc_file=`cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL`
-        echo "build_pom_script=$snyc_file" >> $GITHUB_OUTPUT
-    - name: print output
-      run: |
-        echo "${{ steps.set-build-pom-script.outputs.build_pom_script }}" > input.file
-        cat input.file
+#    - name: Load snyk-scan-build-pom.sh
+#      #Remove later
+#      continue-on-error: true
+#      id: set-build-pom-script
+#      run: |
+#        snyc_file=`cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL`
+#        echo "build_pom_script=$snyc_file" >> $GITHUB_OUTPUT
+#    - name: print output
+#      run: |
+#        echo "${{ steps.set-build-pom-script.outputs.build_pom_script }}" > input.file
+#        cat input.file
         
 #        echo ::set-output name=build_pom_script::$(cat $SNYK_SCAN_BUILD_POM_SCRIPT_URL)
 #        echo "build_pom_script=$(<$SNYK_SCAN_BUILD_POM_SCRIPT_URL)" >> $GITHUB_OUTPUT
         
     # Load snyc-scan-pom.tpl file
-    - name: Load snyc-scan-pom.tpl
-      #Remove later
-      continue-on-error: true
-      id: set-pom-template
-      run: |
-        echo "pom_template=$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
+#    - name: Load snyc-scan-pom.tpl
+#      #Remove later
+#      continue-on-error: true
+#      id: set-pom-template
+#      run: |
+#        echo "pom_template=$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
 #        echo ::set-output name=pom_template::$(cat $SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)
 #        echo "pom_template=$(<$SNYK_SCAN_POM_TEMPLATE_CONFIG_URL)" >> $GITHUB_OUTPUT
         
@@ -72,23 +84,22 @@ jobs:
       with:
         repository: ${{ matrix.repo }}
         ref: ${{ matrix.branch }}
+    - name: Download snyk-scan-build-pom.sh
+      uses: actions/download-artifact@v3
+      with:
+        name: snyk-scan-build-pom.sh
+    - name: Download snyc-scan-pom.tpl
+      uses: actions/download-artifact@v3
+      with:
+        name: snyc-scan-pom.tpl
     - name: Scan vulnerabilities with snyk
       run: |
-        echo "${{ needs.output-setup.outputs.build_pom_script }}" > input.file
-        cat input.file
-        while IFS= read -r line
-        do
-          echo "$line"
-        done < input.file
-        echo  "${{ needs.output-setup.outputs.pom_template }}" > input.file
-        cat input.file
-        while IFS= read -r line
-        do
-          echo "$line"
-        done < input.file
         pwd
-        cd scan-prj
-        pwd
+        ls
+        echo "read1"
+        cat snyk-scan-build-pom.sh
+        cat snyc-scan-pom.tpl
+        echo "read2"
         bash build-pom.sh
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
@@ -141,7 +152,7 @@ jobs:
         done < snyk-results.txt
         cat $REPORT_FILE_NAME
         cat snyk-results.txt
-    - name: Upload Cypress results
+    - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
         name: snyk-report
