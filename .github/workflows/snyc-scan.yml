@@ -99,10 +99,20 @@ jobs:
         echo "test2"
         mkdir scan-prj
         echo "test3"
-        cd scan-prj
+        ls
         echo "test4"
-        bash snyk-scan-build-pom.sh
+        cd scan-prj
         echo "test5"
+        mv ../snyk-scan-build-pom.sh .
+        echo "test6"
+        mv ../snyc-scan-pom.tpl .
+        echo "test7"
+        ls
+        echo "test8"
+        ls ..
+        echo "test9"
+        bash snyk-scan-build-pom.sh
+        echo "test10"
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
