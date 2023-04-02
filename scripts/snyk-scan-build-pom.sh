@@ -24,7 +24,7 @@ while IFS= read -r ln; do
   
   if [[ $IN_PARENT = false && $IN_MODULES = false && $IN_DEPENDENCIES = false ]]
   then
-    if [[ "$ln" == *"<artifactId>app-engine</artifactId>"* ]]
+    if [[ "$ln" == *"<artifactId>$PARENT_ARTIFACT</artifactId>"* ]]
     then
       echo "    <artifactId>snyc-scan-project</artifactId>" >> pom.xml
     elif [[ "$ln" == *"</project>"* ]]
