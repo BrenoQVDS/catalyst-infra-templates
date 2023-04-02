@@ -101,7 +101,7 @@ jobs:
         echo "test3"
         cd scan-prj
         echo "test4"
-        bash ../snyk-scan-build-pom.sh
+        bash snyk-scan-build-pom.sh
         echo "test5"
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
