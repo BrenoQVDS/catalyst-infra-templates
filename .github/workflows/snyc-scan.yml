@@ -103,6 +103,8 @@ jobs:
         echo "test1"
         bash snyk-scan-build-pom.sh
         echo "test2"
+        cat pom.xml
+        echo "test3"
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
