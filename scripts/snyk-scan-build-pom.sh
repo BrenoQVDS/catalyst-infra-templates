@@ -22,8 +22,15 @@ done < "../pom.xml"
 
 DF="pom.xml"
 
+echo "test 10.0"
+
+echo $DEPS
+
+echo "test 10.1"
 rm "$DF"
+echo "test 10.2"
 touch "$DF"
+echo "test 10.3"
 
 while IFS= read -r ln; do
 
