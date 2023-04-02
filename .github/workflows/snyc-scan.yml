@@ -94,7 +94,7 @@ jobs:
         name: snyc-scan-pom.tpl
     - name: Scan vulnerabilities with snyk
       run: |
-        rm -rf scan-prj
+        rm -rfv scan-prj
         mkdir scan-prj
         cd scan-prj
         bash ../snyk-scan-build-pom.sh
