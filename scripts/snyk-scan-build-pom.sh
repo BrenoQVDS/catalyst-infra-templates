@@ -33,7 +33,8 @@ while IFS= read -r ln; do
       echo $DEPS >> pom.xml
       echo "</dependencies>" >> pom.xml
       echo "</project>" >> pom.xml
-    else
+    elif [[ "$ln" != *"<dependencies>"* && "$ln" != *"</dependencies>"* ]]
+    then
       echo "$ln" >> pom.xml
     fi
   fi
