@@ -94,10 +94,15 @@ jobs:
         name: snyc-scan-pom.tpl
     - name: Scan vulnerabilities with snyk
       run: |
+        echo "test1"
         rm -rfv ./scan-prj
+        echo "test2"
         mkdir scan-prj
+        echo "test3"
         cd scan-prj
+        echo "test4"
         bash ../snyk-scan-build-pom.sh
+        echo "test5"
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
