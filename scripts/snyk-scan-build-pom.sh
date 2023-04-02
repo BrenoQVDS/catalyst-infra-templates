@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "test2"
+#~
 
 INDEP=false
 INEXC=false
@@ -34,6 +34,4 @@ while IFS= read -r ln; do
     echo "$ln" >> "$DF"
   fi
 
-done < "pom.xml.tpl"
-
-cp ../.snyk .
+done < "snyc-scan-pom.tpl"
