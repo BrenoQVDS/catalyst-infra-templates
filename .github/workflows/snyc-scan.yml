@@ -10,7 +10,6 @@ env:
   CATALYST_INFRA_TEMPLATES_REPO: BrenoQVDS/catalyst-infra-templates
   SNYK_SCAN_MATRIX_CONFIG_URL: global-config/snyk-scan-matrix.json
   SNYK_SCAN_BUILD_POM_SCRIPT_URL: scripts/snyk-scan-build-pom.sh
-  SNYK_SCAN_POM_TEMPLATE_CONFIG_URL: templates/snyc-scan-pom.tpl
 
 jobs:
   output-setup:
@@ -39,13 +38,7 @@ jobs:
         name: snyk-scan-build-pom.sh
         path: ${{ env.SNYK_SCAN_BUILD_POM_SCRIPT_URL }}
         
-    - name: Upload snyc-scan-pom.tpl
-      uses: actions/upload-artifact@v3
-      with:
-        name: snyc-scan-pom.tpl
-        path: ${{ env.SNYK_SCAN_POM_TEMPLATE_CONFIG_URL }}
- 
-    # Load snyk-scan-build-pom.sh file
+# Load snyk-scan-build-pom.sh file
 #    - name: Load snyk-scan-build-pom.sh
 #      #Remove later
 #      continue-on-error: true
@@ -88,10 +81,6 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: snyk-scan-build-pom.sh
-    - name: Download snyc-scan-pom.tpl
-      uses: actions/download-artifact@v3
-      with:
-        name: snyc-scan-pom.tpl
     - name: Scan vulnerabilities with snyk
       run: |
         rm -rfv ./scan-prj
