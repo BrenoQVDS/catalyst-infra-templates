@@ -87,8 +87,6 @@ jobs:
         mkdir scan-prj
         cd scan-prj
         mv ../snyk-scan-build-pom.sh .
-        mv ../snyc-scan-pom.tpl .
-        cp snyc-scan-pom.tpl pom.xml
         echo "test1"
         bash snyk-scan-build-pom.sh
         echo "test2"
