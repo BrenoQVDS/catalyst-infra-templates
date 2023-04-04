@@ -96,7 +96,6 @@ jobs:
         REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
         REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
-        LINE_NUM=1
         VULNERABILITY_COUNT=0
         while read LINE
         do
@@ -139,7 +138,6 @@ jobs:
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
             VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           fi
-          ((LINE_NUM++))
         done < snyk-results.txt
         curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
     - name: Upload Snyk reports
