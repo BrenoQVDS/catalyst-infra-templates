@@ -123,7 +123,7 @@ jobs:
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
               echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-              ((VULNERABILITY_COUNT++))
+              VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
@@ -131,13 +131,13 @@ jobs:
             VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
             FIX_TYPE="Explicity"
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            ((VULNERABILITY_COUNT++))
+            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
             VULNERABLE_LIB_VERSION_FIX=
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            ((VULNERABILITY_COUNT++))
+            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           fi
           ((LINE_NUM++))
         done < snyk-results.txt
