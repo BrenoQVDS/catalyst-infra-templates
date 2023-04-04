@@ -101,6 +101,7 @@ jobs:
         echo $REPORT_FILE_NAME
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
         LINE_NUM=1
+        VULNERABILITY_COUNT=0
         while read LINE
         do
           if [[ $LINE == Upgrade* ]]
@@ -126,6 +127,7 @@ jobs:
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
               echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+              ((VULNERABILITY_COUNT++))
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
@@ -133,15 +135,17 @@ jobs:
             VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
             FIX_TYPE="Explicity"
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+            ((VULNERABILITY_COUNT++))
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
             VULNERABLE_LIB_VERSION_FIX=
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+            ((VULNERABILITY_COUNT++))
           fi
           ((LINE_NUM++))
         done < snyk-results.txt
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' ${{ secrets.SLACK_SV_WEBHOOK }}
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"$REPO_NAME in branch \"$BRANCH\" has $VULNERABILITY_COUNT vulnerabilities"}' ${{ secrets.SLACK_SV_WEBHOOK }}
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
