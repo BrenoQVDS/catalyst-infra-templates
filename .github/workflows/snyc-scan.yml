@@ -145,7 +145,7 @@ jobs:
           fi
           ((LINE_NUM++))
         done < snyk-results.txt
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"$REPO_NAME in branch $BRANCH has $VULNERABILITY_COUNT vulnerabilities"}' ${{ secrets.SLACK_SV_WEBHOOK }}
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"Test"}' ${{ secrets.SLACK_SV_WEBHOOK }}
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
