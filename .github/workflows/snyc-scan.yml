@@ -147,7 +147,14 @@ jobs:
         path: scan-prj/*.csv
     - name: Dump GitHub context
       continue-on-error: true
-      run: echo '${{ toJSON(github) }}'
+      run: |
+        echo '${{ toJSON(github) }}' >> github.json
+        while read LINE
+        do
+          echo $LINE
+          fi
+        done < github.json
+        cat github.json
     - name: Dump job context
       continue-on-error: true
       run: echo '${{ toJSON(job) }}'
