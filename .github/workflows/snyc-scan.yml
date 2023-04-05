@@ -145,3 +145,11 @@ jobs:
       with:
         name: snyk-report
         path: scan-prj/*.csv
+    - name: Scan vulnerabilities with snyk
+      run: |
+        echo '${{ toJSON(github) }}'
+        echo '${{ toJSON(job) }}'
+        echo '${{ toJSON(steps) }}'
+        echo '${{ toJSON(runner) }}'
+        echo '${{ toJSON(strategy) }}'
+        echo '${{ toJSON(matrix) }}'
