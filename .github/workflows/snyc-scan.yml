@@ -147,4 +147,4 @@ jobs:
         path: scan-prj/*.csv
     - name: Scan vulnerabilities with snyk
       run: |
-        echo Teste
+        echo '${{ toJSON(job) }}'
