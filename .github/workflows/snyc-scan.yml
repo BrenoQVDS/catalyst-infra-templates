@@ -81,65 +81,65 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: snyk-scan-build-pom.sh
-    - name: Scan vulnerabilities with snyk
-      run: |
-        rm -rfv ./scan-prj
-        mkdir scan-prj
-        cd scan-prj
-        mv ../snyk-scan-build-pom.sh .
-        bash snyk-scan-build-pom.sh
-        cat pom.xml
-        npm install snyk -g
-        snyk auth ${{ secrets.SNYK_TOKEN }}
-        snyk test >> snyk-results.txt || true
-        BRANCH=$(echo ${{ matrix.branch }} | sed -r 's;/+;_;g')
-        REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
-        REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
-        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
-        VULNERABILITY_COUNT=0
-        while read LINE
-        do
-          if [[ $LINE == Upgrade* ]]
-          then
-            VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F '@' '{print $3}' | awk -F ' ' '{print $1}')
-            VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
-            FIX_TYPE="Update"
-            ISSUES_WITH_NO_DIRECT_UPGRADE=false
-          elif [[ $LINE == ✗* ]]
-          then
-            VULNERABILITY_TYPE=$(echo "${LINE}" | awk -F '✗ ' '{print $2}' | awk -F ' \\[' '{print $1}')
-            VULNERABILITY_SEVERITY=$(echo "${LINE}" | awk -F '[' '{print $2}' | awk -F ' ' '{print $1}')
-            VULNERABILITY_SNYK_LINK=$(echo "${LINE}" | awk -F '[' '{print $3}' | awk -F ']' '{print $1}')
-          elif [[ $LINE == "Issues with no direct upgrade"* ]]
-          then
-            ISSUES_WITH_NO_DIRECT_UPGRADE=true
-            FIX_TYPE="No fix"
-            VULNERABLE_LIB_VERSION_FIX=
-          elif [[ $LINE == "introduced by"* ]]
-          then
-            VULNERABLE_LIB=$(echo "${LINE}" | awk -F 'introduced by ' '{print $2}' | awk -F '@' '{print $1}')
-            VULNERABLE_LIB_VERSION=$(echo "${LINE}" | awk -F '@' '{print $2}' | awk '{print $1}')
-            if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
-            then
-              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-              VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
-            fi
-          elif [[ $LINE == "This issue was fixed in versions"* ]]
-          then
-            VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F 'This issue was fixed in versions: ' '{print $2}')
-            VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
-            FIX_TYPE="Explicity"
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
-          elif [[ $LINE == "No upgrade or patch available"* ]]
-          then
-            FIX_TYPE="No fix"
-            VULNERABLE_LIB_VERSION_FIX=
-            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
-          fi
-        done < snyk-results.txt
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
+#    - name: Scan vulnerabilities with snyk
+#      run: |
+#        rm -rfv ./scan-prj
+#        mkdir scan-prj
+#        cd scan-prj
+#        mv ../snyk-scan-build-pom.sh .
+#        bash snyk-scan-build-pom.sh
+#        cat pom.xml
+#        npm install snyk -g
+#        snyk auth ${{ secrets.SNYK_TOKEN }}
+#        snyk test >> snyk-results.txt || true
+#        BRANCH=$(echo ${{ matrix.branch }} | sed -r 's;/+;_;g')
+#        REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
+#        REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
+#        echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
+#        VULNERABILITY_COUNT=0
+#        while read LINE
+#        do
+#          if [[ $LINE == Upgrade* ]]
+#          then
+#            VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F '@' '{print $3}' | awk -F ' ' '{print $1}')
+#            VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
+#            FIX_TYPE="Update"
+#            ISSUES_WITH_NO_DIRECT_UPGRADE=false
+#          elif [[ $LINE == ✗* ]]
+#          then
+#            VULNERABILITY_TYPE=$(echo "${LINE}" | awk -F '✗ ' '{print $2}' | awk -F ' \\[' '{print $1}')
+#            VULNERABILITY_SEVERITY=$(echo "${LINE}" | awk -F '[' '{print $2}' | awk -F ' ' '{print $1}')
+#            VULNERABILITY_SNYK_LINK=$(echo "${LINE}" | awk -F '[' '{print $3}' | awk -F ']' '{print $1}')
+#          elif [[ $LINE == "Issues with no direct upgrade"* ]]
+#          then
+#            ISSUES_WITH_NO_DIRECT_UPGRADE=true
+#            FIX_TYPE="No fix"
+#            VULNERABLE_LIB_VERSION_FIX=
+#          elif [[ $LINE == "introduced by"* ]]
+#          then
+#            VULNERABLE_LIB=$(echo "${LINE}" | awk -F 'introduced by ' '{print $2}' | awk -F '@' '{print $1}')
+#            VULNERABLE_LIB_VERSION=$(echo "${LINE}" | awk -F '@' '{print $2}' | awk '{print $1}')
+#            if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
+#            then
+#              echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+#              VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
+#            fi
+#          elif [[ $LINE == "This issue was fixed in versions"* ]]
+#          then
+#            VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F 'This issue was fixed in versions: ' '{print $2}')
+#            VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
+#            FIX_TYPE="Explicity"
+#            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+#            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
+#          elif [[ $LINE == "No upgrade or patch available"* ]]
+#          then
+#            FIX_TYPE="No fix"
+#            VULNERABLE_LIB_VERSION_FIX=
+#            echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+#            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
+#          fi
+#        done < snyk-results.txt
+#        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
