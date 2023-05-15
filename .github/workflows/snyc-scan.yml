@@ -68,7 +68,6 @@ jobs:
         REPO_NAME=$(echo "${{ matrix.repo }}" | awk -F '/' '{print $2}')
         REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
-        VULNERABILITY_COUNT=0
         POST_PAYLOAD="{\"repository\": \"${REPO_NAME}\", \"branch\": \"${{ matrix.branch }}\", \"vulnerabilities\": ["
         while read LINE
         do
@@ -99,7 +98,6 @@ jobs:
             then
               echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
               POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
-              VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
@@ -109,7 +107,6 @@ jobs:
             FIX_TYPE_ENUM="EXPLICIT"
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
             POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
-            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
@@ -117,30 +114,25 @@ jobs:
             VULNERABLE_LIB_VERSION_FIX=
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
             POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
-            VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           fi
         done < snyk-results.txt
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
-        echo "test1"
-        echo "${POST_PAYLOAD:0:-1}]}"
-        echo "test2"
         curl -X 'PUT' \
-          'https://vulnerability-reports-prod.k8s-entando.org/v1/vulnerability-reports/' \
+          'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
           -H 'accept: application/json' \
           -H 'Content-Type: application/json' \
           -d "${POST_PAYLOAD:0:-1}]}"
-        echo "test3"
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
         name: snyk-report
         path: scan-prj/*.csv
         
-  post-artifact-link:
+  send-slack-message:
     needs: scan-matrix
     runs-on: ubuntu-latest
     steps:
-    - name: Post run page into Slack
+    - name: Send message in Slack
       run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Here is the link for this report: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
+        PAYLOAD="{\"text\":\"*Vulnerability reports updated. Here are the links:* \n  - [Vulnerability Report Page](https://vulnerability-reports.k8s-entando.org/) \n  - [GitHub artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})   \"}"
+        curl -X POST -H 'Content-type: application/json' -d "${PAYLOAD}" ${{ secrets.SLACK_SV_WEBHOOK }}
       
