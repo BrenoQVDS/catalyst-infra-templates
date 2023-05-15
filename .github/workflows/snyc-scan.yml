@@ -133,6 +133,6 @@ jobs:
     steps:
     - name: Send message in Slack
       run: |
-        PAYLOAD="{\"text\":\"*Vulnerability reports updated. Here are the links:* \n- [Vulnerability Report Page](https://vulnerability-reports.k8s-entando.org/) \n- [GitHub artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})   \"}"
+        PAYLOAD="{\"text\":\"*Vulnerability reports updated:* \n  - Page: https://vulnerability-reports.k8s-entando.org/ \n  - GitHub artifact: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}   \"}"
         curl -X POST -H 'Content-type: application/json' -d "${PAYLOAD}" ${{ secrets.SLACK_SV_WEBHOOK }}
       
