@@ -77,16 +77,19 @@ jobs:
             VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F '@' '{print $3}' | awk -F ' ' '{print $1}')
             VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
             FIX_TYPE="Update"
+            FIX_TYPE_ENUM="UPDATE"
             ISSUES_WITH_NO_DIRECT_UPGRADE=false
           elif [[ $LINE == ✗* ]]
           then
             VULNERABILITY_TYPE=$(echo "${LINE}" | awk -F '✗ ' '{print $2}' | awk -F ' \\[' '{print $1}')
             VULNERABILITY_SEVERITY=$(echo "${LINE}" | awk -F '[' '{print $2}' | awk -F ' ' '{print $1}')
+            VULNERABILITY_SEVERITY_ENUM=$(echo $VULNERABILITY_SEVERITY | tr '[:lower:]' '[:upper:]')
             VULNERABILITY_SNYK_LINK=$(echo "${LINE}" | awk -F '[' '{print $3}' | awk -F ']' '{print $1}')
           elif [[ $LINE == "Issues with no direct upgrade"* ]]
           then
             ISSUES_WITH_NO_DIRECT_UPGRADE=true
             FIX_TYPE="No fix"
+            FIX_TYPE_ENUM="NO_FIX"
             VULNERABLE_LIB_VERSION_FIX=
           elif [[ $LINE == "introduced by"* ]]
           then
@@ -95,23 +98,25 @@ jobs:
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
               echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-              POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
+              POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
               VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
           then
             VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F 'This issue was fixed in versions: ' '{print $2}')
             VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
-            FIX_TYPE="Explicity"
+            FIX_TYPE="Explicit"
+            FIX_TYPE_ENUM="EXPLICIT"
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
+            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
             VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
+            FIX_TYPE_ENUM="NO_FIX"
             VULNERABLE_LIB_VERSION_FIX=
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
-            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
+            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
             VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           fi
         done < snyk-results.txt
