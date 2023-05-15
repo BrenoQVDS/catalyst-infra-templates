@@ -1,13 +1,13 @@
-name: Snyk vulnerability reports manual
+name: Snyk vulnerability scan report
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: "0 0/8 * * *"
 
 env:
   APP_ENGINE_REPO: entando/app-engine
   APP_ENGINE_BRANCH: develop
-#  CATALYST_INFRA_TEMPLATES_REPO: entando/catalyst-infra-templates
-  CATALYST_INFRA_TEMPLATES_REPO: BrenoQVDS/catalyst-infra-templates
+  CATALYST_INFRA_TEMPLATES_REPO: entando/catalyst-infra-templates
   SNYK_SCAN_MATRIX_CONFIG_URL: global-config/snyk-scan-matrix.json
   SNYK_SCAN_BUILD_POM_SCRIPT_URL: scripts/snyk-scan-build-pom.sh
 
@@ -19,14 +19,13 @@ jobs:
       build_pom_script: ${{ steps.set-build-pom-script.outputs.build_pom_script }}
       pom_template: ${{ steps.set-pom-template.outputs.pom_template }}
     steps:
-    # Checkout the catalyst-infra-templates repository
+    
     - name: Checkout catalyst-infra-templates
       uses: actions/checkout@v3
       with:
         repository: ${{ env.CATALYST_INFRA_TEMPLATES_REPO }}
-#        token: ${{ secrets.ENTANDO_BOT_TOKEN }}
+        token: ${{ secrets.ENTANDO_BOT_TOKEN }}
         
-    # Load snyk-scan-matrix.json file
     - name: Load snyk-scan-matrix.json
       id: set-matrix
       run: |
@@ -43,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.output-setup.outputs.matrix)}}
-      fail-fast: false #change to true later
+      fail-fast: true
       max-parallel: 10
     steps:
     - name: Checkout project
@@ -126,5 +125,5 @@ jobs:
     steps:
     - name: Post run page into Slack
       run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"You can download the latest report in this page: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Here is the link for this report: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
       
