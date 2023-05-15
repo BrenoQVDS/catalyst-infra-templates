@@ -69,6 +69,7 @@ jobs:
         REPORT_FILE_NAME=$BRANCH-$REPO_NAME.csv
         echo "Vulnerable Library, Vulnerability Type, Severity, Current Version, Fix Version, Fix Type (Update/Explicity/No Fix), Details" > $REPORT_FILE_NAME
         VULNERABILITY_COUNT=0
+        POST_PAYLOAD="{\"repository\": \"${REPO_NAME}\", \"branch\": \"${{ matrix.branch }}\", \"vulnerabilities\": ["
         while read LINE
         do
           if [[ $LINE == Upgrade* ]]
@@ -94,6 +95,7 @@ jobs:
             if [[ $ISSUES_WITH_NO_DIRECT_UPGRADE = false ]]
             then
               echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+              POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
               VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
             fi
           elif [[ $LINE == "This issue was fixed in versions"* ]]
@@ -102,16 +104,26 @@ jobs:
             VULNERABLE_LIB_VERSION_FIX=$(echo $VULNERABLE_LIB_VERSION_FIX | sed -r 's|,|;|g')
             FIX_TYPE="Explicity"
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
             VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           elif [[ $LINE == "No upgrade or patch available"* ]]
           then
             FIX_TYPE="No fix"
             VULNERABLE_LIB_VERSION_FIX=
             echo "${VULNERABLE_LIB},${VULNERABILITY_TYPE},${VULNERABILITY_SEVERITY},${VULNERABLE_LIB_VERSION},${VULNERABLE_LIB_VERSION_FIX},${FIX_TYPE},${VULNERABILITY_SNYK_LINK}" >> $REPORT_FILE_NAME
+            POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE}\"},"
             VULNERABILITY_COUNT=$((VULNERABILITY_COUNT+1))
           fi
         done < snyk-results.txt
         curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
+        echo "test1"
+        echo $POST_PAYLOAD
+        echo "test2"
+        echo ${POST_PAYLOAD:0:-1}
+        echo "test3"
+        echo "${POST_PAYLOAD:0:-1}]}"
+        echo "test4"
+
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
