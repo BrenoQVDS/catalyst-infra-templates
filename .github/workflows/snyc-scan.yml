@@ -117,13 +117,14 @@ jobs:
         done < snyk-results.txt
         curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$REPO_NAME in branch ${{ matrix.branch }} has $VULNERABILITY_COUNT vulnerabilities\"}" ${{ secrets.SLACK_SV_WEBHOOK }}
         echo "test1"
-        echo $POST_PAYLOAD
-        echo "test2"
-        echo ${POST_PAYLOAD:0:-1}
-        echo "test3"
         echo "${POST_PAYLOAD:0:-1}]}"
-        echo "test4"
-
+        echo "test2"
+        curl -X 'PUT' \
+          'https://vulnerability-reports-prod.k8s-entando.org/v1/vulnerability-reports/' \
+          -H 'accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -d "${POST_PAYLOAD:0:-1}]}"
+        echo "test3"
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
