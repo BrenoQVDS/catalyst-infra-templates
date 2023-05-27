@@ -36,17 +36,6 @@ jobs:
         name: snyk-scan-build-pom.sh
         path: ${{ env.SNYK_SCAN_BUILD_POM_SCRIPT_URL }}
         
-    - name: Get Service Account Access Token
-      run: |
-        CURL_RESPONSE=$(curl -X 'POST' \
-                 'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
-                 -H 'Content-Type: application/x-www-form-urlencoded'  \
-                 -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
-        echo $CURL_RESPONSE
-        TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
-        TOKEN=$(echo $TOKEN | tr -d '"')
-        echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV
-        
   scan-matrix:
     needs: setup
     runs-on: ubuntu-latest
@@ -64,6 +53,16 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: snyk-scan-build-pom.sh
+    - name: Get Service Account Access Token
+      run: |
+        CURL_RESPONSE=$(curl -X 'POST' \
+                 'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
+                 -H 'Content-Type: application/x-www-form-urlencoded'  \
+                 -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
+        echo $CURL_RESPONSE
+        TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
+        TOKEN=${TOKEN:1:-1}]}
+        echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV
     - name: Scan vulnerabilities with snyk
       run: |
         rm -rfv ./scan-prj
