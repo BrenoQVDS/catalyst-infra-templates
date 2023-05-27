@@ -61,7 +61,7 @@ jobs:
                  -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
         echo $CURL_RESPONSE
         TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
-        TOKEN=${TOKEN:1:-1}
+        TOKEN=$(echo $TOKEN | tr -d '"')
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
     - name: Scan vulnerabilities with snyk
       run: |
