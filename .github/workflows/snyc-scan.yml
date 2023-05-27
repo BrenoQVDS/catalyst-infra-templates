@@ -137,11 +137,12 @@ jobs:
         echo test3
         echo $POST_PAYLOAD
         echo test4
-        curl -X 'PUT' \
-          'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
-          -H 'accept: application/json' \
-          -H 'Content-Type: application/json' \
-          -d "${POST_PAYLOAD:0:-1}]}"
+        CURL_RESPONSE=$(curl -X 'PUT' \
+                 'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
+                 -H 'accept: application/json' \
+                 -H 'Content-Type: application/x-www-form-urlencoded'  \
+                 -d "${POST_PAYLOAD:0:-1}]}")
+          
         echo test5
         echo $CURL_RESPONSE
         echo test6
