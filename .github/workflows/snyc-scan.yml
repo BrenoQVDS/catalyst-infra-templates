@@ -66,7 +66,7 @@ jobs:
         echo test3
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
         echo test4
-        echo $ACCESS_TOKEN
+        echo $TOKEN
         echo test5
     - name: Scan vulnerabilities with snyk
       run: |
@@ -75,7 +75,6 @@ jobs:
         cd scan-prj
         mv ../snyk-scan-build-pom.sh .
         bash snyk-scan-build-pom.sh
-        cat pom.xml
         npm install snyk -g
         snyk auth ${{ secrets.SNYK_TOKEN }}
         snyk test >> snyk-results.txt || true
@@ -137,7 +136,7 @@ jobs:
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
                  -H 'accept: application/json' \
                  -H 'Content-Type: application/json' \  
-                 -d "${POST_PAYLOAD}]}")
+                 -d "${POST_PAYLOAD:0:-1}]}")
         echo test2
         echo $CURL_RESPONSE
         echo test3
