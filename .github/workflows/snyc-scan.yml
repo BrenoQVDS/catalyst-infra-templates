@@ -139,6 +139,7 @@ jobs:
         echo test4
         CURL_RESPONSE=$(curl -isb -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
+                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                  -H 'accept: application/json' \
                  -H 'Content-Type: application/x-www-form-urlencoded'  \
                  -d "${POST_PAYLOAD:0:-1}]}")
