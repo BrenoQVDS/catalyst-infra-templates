@@ -66,7 +66,7 @@ jobs:
         echo test3
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
         echo test4
-        echo $TOKEN
+        echo ${TOKEN} | sed 's/./& /g'
         echo test5
     - name: Scan vulnerabilities with snyk
       run: |
@@ -130,23 +130,17 @@ jobs:
             POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
           fi
         done < snyk-results.txt
-        echo test1
-        echo $POST_PAYLOAD
-        echo test2
         POST_PAYLOAD=${POST_PAYLOAD:0:-1}]}
-        echo test3
-        echo $POST_PAYLOAD
-        echo test4
+        echo test1
+        echo $ACCESS_TOKEN
+        echo test2
         CURL_RESPONSE=$(curl -isb -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
                  -H 'accept: application/json' \
                  -H 'Content-Type: application/x-www-form-urlencoded'  \
                  -d "${POST_PAYLOAD}]}")
-          
-        echo test5
         echo $CURL_RESPONSE
-        echo test6
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
