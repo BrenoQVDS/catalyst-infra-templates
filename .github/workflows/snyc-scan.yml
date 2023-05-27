@@ -57,7 +57,7 @@ jobs:
       run: |
         CURL_RESPONSE=$(curl -X 'POST' \
                  'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
-                 -H 'Content-Type: application/x-www-form-urlencoded'
+                 -H 'Content-Type: application/x-www-form-urlencoded'  \
                  -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
         echo test1
         echo $CURL_RESPONSE
