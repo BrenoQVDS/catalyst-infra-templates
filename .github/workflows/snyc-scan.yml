@@ -142,7 +142,7 @@ jobs:
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
                  -H 'accept: application/json' \
                  -H 'Content-Type: application/x-www-form-urlencoded'  \
-                 -d "${POST_PAYLOAD:0:-1}]}")
+                 -d "${POST_PAYLOAD}]}")
           
         echo test5
         echo $CURL_RESPONSE
