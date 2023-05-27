@@ -61,7 +61,7 @@ jobs:
                  -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
         echo $CURL_RESPONSE
         TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
-        TOKEN=${TOKEN:1:-1}]}
+        TOKEN=${TOKEN:1:-1}
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV
     - name: Scan vulnerabilities with snyk
       run: |
@@ -126,7 +126,7 @@ jobs:
           fi
         done < snyk-results.txt
         echo ${ACCESS_TOKEN} | sed 's/./& /g'
-        POST_PAYLOAD=${POST_PAYLOAD:0:-1}
+        POST_PAYLOAD=${POST_PAYLOAD:0:-1}]}
         CURL_RESPONSE=$(curl -is -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
