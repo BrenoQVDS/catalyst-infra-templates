@@ -63,6 +63,7 @@ jobs:
         echo $CURL_RESPONSE
         echo test2
         TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
+        TOKEN=${TOKEN:1:-1}
         echo test3
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
         echo test4
