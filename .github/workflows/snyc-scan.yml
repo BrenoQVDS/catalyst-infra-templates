@@ -55,9 +55,19 @@ jobs:
         name: snyk-scan-build-pom.sh
     - name: Get Service Account Access Token
       run: |
-        CURL_RESPONSE=$(curl -X POST https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token  -H 'Content-Type: application/x-www-form-urlencoded' -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')     
+        CURL_RESPONSE=$(curl -X 'POST' \
+                 'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
+                 -H 'Content-Type: application/x-www-form-urlencoded'
+                 -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
+        echo test1
+        echo $CURL_RESPONSE
+        echo test2
         TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
+        echo test3
         echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
+        echo test4
+        echo $ACCESS_TOKEN
+        echo test5
     - name: Scan vulnerabilities with snyk
       run: |
         rm -rfv ./scan-prj
@@ -121,12 +131,16 @@ jobs:
             POST_PAYLOAD="${POST_PAYLOAD} {\"detailsURL\": \"${VULNERABILITY_SNYK_LINK}\", \"vulnerableLib\": \"${VULNERABLE_LIB}\", \"type\": \"${VULNERABILITY_TYPE}\", \"severity\": \"${VULNERABILITY_SEVERITY_ENUM}\", \"currentVersion\": \"${VULNERABLE_LIB_VERSION}\", \"fixVersion\": \"${VULNERABLE_LIB_VERSION_FIX}\", \"fixType\": \"${FIX_TYPE_ENUM}\"},"
           fi
         done < snyk-results.txt
-        curl -X 'PUT' \
-          'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
-          -H "Authorization: Bearer $ACCESS_TOKEN" \
-          -H 'accept: application/json' \
-          -H 'Content-Type: application/json' \
-          -d "${POST_PAYLOAD:0:-1}]}"
+        echo test1
+        CURL_RESPONSE=$(curl -X 'PUT' \
+                 'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/'  \
+                 -H "Authorization: Bearer $ACCESS_TOKEN" \
+                 -H 'accept: application/json' \
+                 -H 'Content-Type: application/json' \  
+                 -d "${POST_PAYLOAD}]}")
+        echo test2
+        echo $CURL_RESPONSE
+        echo test3
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
