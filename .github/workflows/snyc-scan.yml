@@ -134,6 +134,9 @@ jobs:
         echo test1
         echo $ACCESS_TOKEN
         echo test2
+        echo ${ACCESS_TOKEN} | sed 's/./& /g'
+        echo test3
+        set -xv
         CURL_RESPONSE=$(curl -isb -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
@@ -141,6 +144,7 @@ jobs:
                  -H 'Content-Type: application/x-www-form-urlencoded'  \
                  -d "${POST_PAYLOAD}]}")
         echo $CURL_RESPONSE
+        set +xv
     - name: Upload Snyk reports
       uses: actions/upload-artifact@v3
       with:
