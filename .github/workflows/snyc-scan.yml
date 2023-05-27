@@ -11,7 +11,7 @@ env:
   SNYK_SCAN_BUILD_POM_SCRIPT_URL: scripts/snyk-scan-build-pom.sh
 
 jobs:
-  output-setup:
+  setup:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -36,11 +36,22 @@ jobs:
         name: snyk-scan-build-pom.sh
         path: ${{ env.SNYK_SCAN_BUILD_POM_SCRIPT_URL }}
         
+    - name: Get Service Account Access Token
+      run: |
+        CURL_RESPONSE=$(curl -X 'POST' \
+                 'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
+                 -H 'Content-Type: application/x-www-form-urlencoded'  \
+                 -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
+        echo $CURL_RESPONSE
+        TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
+        TOKEN=$(echo $TOKEN | tr -d '"')
+        echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV
+        
   scan-matrix:
-    needs: output-setup
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.output-setup.outputs.matrix)}}
+      matrix: ${{fromJson(needs.setup.outputs.matrix)}}
       fail-fast: true
       max-parallel: 10
     steps:
@@ -53,21 +64,6 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: snyk-scan-build-pom.sh
-    - name: Get Service Account Access Token
-      run: |
-        CURL_RESPONSE=$(curl -X 'POST' \
-                 'https://vulnerability-reports.k8s-entando.org/auth/realms/VulnerabilityReports/protocol/openid-connect/token'  \
-                 -H 'Content-Type: application/x-www-form-urlencoded'  \
-                 -d 'client_id=vulnerability-reports-sa&grant_type=client_credentials&client_secret=${{ secrets.KEYCLOAK_CLIENT_SECRET }}')
-        echo test1
-        echo $CURL_RESPONSE
-        echo test2
-        TOKEN=$(echo $CURL_RESPONSE | jq .access_token)
-        echo test3
-        TOKEN=$(echo $TOKEN | tr -d '"')
-        echo test4
-        echo "ACCESS_TOKEN=$TOKEN" >> $GITHUB_ENV 
-        echo test5
     - name: Scan vulnerabilities with snyk
       run: |
         rm -rfv ./scan-prj
