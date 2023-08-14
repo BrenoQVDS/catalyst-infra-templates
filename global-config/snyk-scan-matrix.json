@@ -9,7 +9,7 @@
     "entando/entando-core-parent",
     "entando/app-engine",
     "entando/entando-spring-boot-parent",
-    "entando-k8s/entando-quarkus-parent",
+    "entando-k8s/entando-quarkus-parent"
   ],
   "exclude": [
     {
