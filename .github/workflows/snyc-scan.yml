@@ -80,6 +80,7 @@ jobs:
         POST_PAYLOAD="{\"repository\": \"${REPO_NAME}\", \"branch\": \"${{ matrix.branch }}\", \"vulnerabilities\": ["
         while read LINE
         do
+          echo $LINE
           if [[ $LINE == Upgrade* ]]
           then
             VULNERABLE_LIB_VERSION_FIX=$(echo "${LINE}" | awk -F '@' '{print $3}' | awk -F ' ' '{print $1}')
@@ -126,6 +127,7 @@ jobs:
           fi
         done < snyk-results.txt
         POST_PAYLOAD=${POST_PAYLOAD:0:-1}]}
+        echo $POST_PAYLOAD
         CURL_RESPONSE=$(curl -is -X 'PUT' \
                  'https://vulnerability-reports.k8s-entando.org/v1/vulnerability-reports/' \
                  -H "Authorization: Bearer $ACCESS_TOKEN" \
